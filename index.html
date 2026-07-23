@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Proposta CFTV</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root {
+    --bg: #0f172a;
+    --bg-grad-2: #1e293b;
+    --card: #ffffff;
+    --card-border: #e2e8f0;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --accent-light: #dbeafe;
+    --success: #16a34a;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg-grad-2) 100%);
+    min-height: 100vh;
+    padding: 24px 16px 64px;
+    color: var(--text);
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 28px; color: #fff; }
+  header h1 { font-size: 1.6rem; margin: 0 0 6px; font-weight: 700; }
+  header p { margin: 0; color: #cbd5e1; font-size: 0.95rem; }
+
+  .input-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    margin-bottom: 28px;
+  }
+  .field { margin-bottom: 18px; }
+  .field:last-of-type { margin-bottom: 0; }
+  label { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 4px; }
+  .hint { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1.1rem;
+    border: 2px solid var(--card-border);
+    border-radius: 10px;
+    outline: none;
+    transition: border-color .15s;
+    font-weight: 600;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 13px 22px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .btn:active { transform: scale(0.97); }
+  .btn-full { width: 100%; justify-content: center; margin-top: 4px; }
+  .btn-copy {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+  .btn-copy:hover { background: #bfdbfe; }
+  .btn-copy.copied { background: #dcfce7; color: var(--success); }
+
+  #results { display: none; }
+  .result-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    border-left: 5px solid var(--accent);
+  }
+  .result-card .tag {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .result-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 12px;
+  }
+  .result-footer { display: flex; justify-content: flex-end; }
+
+  footer { text-align: center; color: #94a3b8; font-size: 0.78rem; margin-top: 32px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Gerador de Proposta CFTV</h1>
+    <p>Preencha os valores e gere os textos prontos para colar na proposta</p>
+  </header>
+
+  <div class="input-card">
+    <div class="field">
+      <label for="custo">Preço de Custo Total do Projeto</label>
+      <div class="hint">Dica: valor total da coluna AA da proposta</div>
+      <input type="text" id="custo" inputmode="decimal" placeholder="R$ 0,00">
+    </div>
+    <div class="field">
+      <label for="venda">Preço de Venda Total do Projeto</label>
+      <div class="hint">Dica: valor total da coluna L da proposta</div>
+      <input type="text" id="venda" inputmode="decimal" placeholder="R$ 0,00">
+    </div>
+    <button class="btn btn-full" id="gerarBtn">Gerar Respostas</button>
+  </div>
+
+  <div id="results"></div>
+
+  <footer>Gerador de Proposta CFTV &middot; funciona offline &middot; nenhum dado é enviado para servidor</footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
