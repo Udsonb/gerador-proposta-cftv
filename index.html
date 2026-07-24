@@ -36,6 +36,28 @@
   header h1 { font-size: 1.6rem; margin: 0 0 6px; font-weight: 700; }
   header p { margin: 0; color: #cbd5e1; font-size: 0.95rem; }
 
+  .btn-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 7px 16px;
+    background: transparent;
+    color: #cbd5e1;
+    border: 1px solid rgba(203, 213, 225, 0.35);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .btn-install:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(203, 213, 225, 0.6);
+    color: #fff;
+  }
+  .btn-install[hidden] { display: none; }
+
   .input-card {
     background: var(--card);
     border-radius: var(--radius);
@@ -118,6 +140,9 @@
   <header>
     <h1>Gerador de Proposta CFTV</h1>
     <p>Preencha os valores e gere os textos prontos para colar na proposta</p>
+    <button class="btn-install" id="installBtn" type="button" hidden>
+      <span aria-hidden="true">⬇</span> Instalar aplicativo
+    </button>
   </header>
 
   <div class="input-card">

@@ -1,4 +1,4 @@
-const CACHE_NAME = "proposta-cftv-v4";
+const CACHE_NAME = "proposta-cftv-v5";
 const ASSETS = ["./", "./index.html", "./app.js", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {

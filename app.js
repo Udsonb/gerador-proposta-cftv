@@ -257,6 +257,33 @@ async function copiarBloco(r, btn) {
   }
 }
 
+// ---------- Botão de instalar (PWA) ----------
+let deferredInstallPrompt = null;
+const installBtn = document.getElementById("installBtn");
+
+function appIsInstalled() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  if (!appIsInstalled()) installBtn.hidden = false;
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  installBtn.hidden = true;
+});
+
+installBtn.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+  installBtn.hidden = true;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+});
+
 // ---------- Inicialização ----------
 document.addEventListener("DOMContentLoaded", () => {
   const custoInput = document.getElementById("custo");
