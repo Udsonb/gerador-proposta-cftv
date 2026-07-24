@@ -316,5 +316,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
+
+    let refreshingAfterUpdate = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (refreshingAfterUpdate) return;
+      refreshingAfterUpdate = true;
+      window.location.reload();
+    });
   }
 });
