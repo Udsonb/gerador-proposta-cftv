@@ -260,28 +260,37 @@ async function copiarBloco(r, btn) {
 // ---------- Botão de instalar (PWA) ----------
 let deferredInstallPrompt = null;
 const installBtn = document.getElementById("installBtn");
+const installHint = document.getElementById("installHint");
 
 function appIsInstalled() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
+if (!appIsInstalled()) {
+  installBtn.hidden = false;
+}
+
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   deferredInstallPrompt = event;
-  if (!appIsInstalled()) installBtn.hidden = false;
 });
 
 window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   installBtn.hidden = true;
+  installHint.hidden = true;
 });
 
 installBtn.addEventListener("click", async () => {
-  if (!deferredInstallPrompt) return;
-  installBtn.hidden = true;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
+  if (deferredInstallPrompt) {
+    installHint.hidden = true;
+    const promptEvent = deferredInstallPrompt;
+    deferredInstallPrompt = null;
+    promptEvent.prompt();
+    await promptEvent.userChoice;
+  } else {
+    installHint.hidden = !installHint.hidden;
+  }
 });
 
 // ---------- Inicialização ----------

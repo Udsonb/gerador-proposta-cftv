@@ -58,6 +58,19 @@
   }
   .btn-install[hidden] { display: none; }
 
+  .install-hint {
+    max-width: 320px;
+    margin: 10px auto 0;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(203, 213, 225, 0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: #e2e8f0;
+  }
+  .install-hint[hidden] { display: none; }
+
   .input-card {
     background: var(--card);
     border-radius: var(--radius);
@@ -143,6 +156,10 @@
     <button class="btn-install" id="installBtn" type="button" hidden>
       <span aria-hidden="true">⬇</span> Instalar aplicativo
     </button>
+    <div class="install-hint" id="installHint" hidden>
+      Toque no menu <strong>⋮</strong> do navegador e escolha <strong>"Instalar aplicativo"</strong>
+      (ou "Adicionar à tela inicial").
+    </div>
   </header>
 
   <div class="input-card">
