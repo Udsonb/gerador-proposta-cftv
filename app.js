@@ -101,7 +101,7 @@ function calcularRespostas(custoCents, vendaCents) {
     {
       tag: "Resposta 1 · Preço de Venda (CAPEX)",
       titulo: "Capex:",
-      bold1: "I. Valor para a Aquisição de Todos os Equipamentos e Software Licenciados para o sistema acima",
+      bold1: "I. Valor para a Aquisição de Todos os Equipamentos e Softwares Licenciados para o sistema acima",
       meio: " (inclui garantia balcão de 12 meses dos equipamentos instalados em caso de defeitos de fábrica): ",
       valorCents: vendaCents,
       rodape: "*Conforme condições comerciais",
@@ -110,7 +110,7 @@ function calcularRespostas(custoCents, vendaCents) {
       tag: "Resposta 2 · Manutenção Mensal Opcional (OPEX Opcional)",
       titulo: "Opex Opcional:",
       bold1: "II. OPCIONAL » Valor Mensal para Manutenção Preventiva e Corretiva,",
-      meio: " (Inclui substituição de peças e acessórios, limpeza, atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva, Manutenção Corretiva, deslocamentos e visitas técnicas de acordo com SLA): ",
+      meio: " (Inclui limpeza, atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva, Manutenção Corretiva, deslocamentos e visitas técnicas de acordo com SLA; Não incluso substituição de peças e acessórios): ",
       valorCents: round(vendaCents * 0.02 * 1.111),
       rodape: "*Este Valor deverá ser disponibilizado mensalmente pela Manutenção dos Equipamentos",
     },
