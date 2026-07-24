@@ -125,7 +125,7 @@ function respostaLocacao(meses, valorCents) {
   return {
     tag: `Resposta · Locação ${meses} Meses (OPEX)`,
     titulo: "Opex:",
-    bold1: `III. Valor Mensal (${meses} Meses) para Locação dos Novos Equipamentos, Licenças e para Manutenção Preventiva e corretiva de todos os ítens desta proposta,`,
+    bold1: `III. Valor Mensal (${meses} Meses) para Locação dos Novos Equipamentos, Licenças e para Manutenção Preventiva e Corretiva de todos os itens desta proposta,`,
     meio: " (Inclui Garantia Total do Sistema, Substituição de Peças, Atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva e Corretiva): ",
     valorCents,
     rodape: "* Este Valor deverá ser disponibilizado mensalmente pela Locação dos Equipamentos",
