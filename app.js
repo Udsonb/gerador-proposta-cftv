@@ -105,20 +105,18 @@ function labelAtualizacao(software, capitalizado) {
   return software ? `${prefixo} de Hardware e Software` : `${prefixo} de Hardware`;
 }
 
+function labelFornecimento(equipamentos, software) {
+  if (equipamentos && software) return "dos Novos Equipamentos, Licenças";
+  if (equipamentos) return "dos Novos Equipamentos";
+  return "das Novas Licenças";
+}
+
 // ---------- Cálculo das respostas ----------
 function calcularRespostas(custoCents, vendaCents, opts) {
-  const { software, pecas, preventiva, corretiva } = opts;
   const round = (n) => Math.round(n);
 
   return [
-    {
-      tag: "Resposta 1 · Preço de Venda (CAPEX)",
-      titulo: "Capex:",
-      bold1: `I. Valor para a Aquisição de Todos os Equipamentos${software ? " e Softwares Licenciados" : ""} para o sistema acima`,
-      meio: " (inclui garantia balcão de 12 meses dos equipamentos instalados em caso de defeitos de fábrica): ",
-      valorCents: vendaCents,
-      rodape: "*Conforme condições comerciais",
-    },
+    respostaCapex(vendaCents, opts),
     respostaManutencaoOpcional(round(vendaCents * 0.02 * 1.111), opts),
     respostaLocacao(24, round(custoCents * 0.111111111), opts),
     respostaLocacao(36, round(custoCents * 0.092165899), opts),
@@ -127,19 +125,45 @@ function calcularRespostas(custoCents, vendaCents, opts) {
   ];
 }
 
+function respostaCapex(valorCents, opts) {
+  const { servico, equipeDedicada, equipamentos, software } = opts;
+
+  let bold1, meio;
+  if (servico) {
+    bold1 = `I. Valor para os Serviços de Instalação, Configuração e Implantação do sistema acima${equipeDedicada ? ", com Equipe Dedicada alocada no cliente" : ""}`;
+    meio = " (inclui mão de obra especializada e acompanhamento técnico): ";
+  } else {
+    let alvo;
+    if (equipamentos && software) alvo = "Todos os Equipamentos e Softwares Licenciados";
+    else if (equipamentos) alvo = "Todos os Equipamentos";
+    else alvo = "Todos os Softwares Licenciados";
+    bold1 = `I. Valor para a Aquisição de ${alvo} para o sistema acima`;
+    meio = " (inclui garantia balcão de 12 meses dos equipamentos instalados em caso de defeitos de fábrica): ";
+  }
+
+  return {
+    tag: "Resposta 1 · Preço de Venda (CAPEX)",
+    titulo: "Capex:",
+    bold1,
+    meio,
+    valorCents,
+    rodape: "*Conforme condições comerciais",
+  };
+}
+
 function respostaManutencaoOpcional(valorCents, opts) {
-  const { software, pecas, preventiva, corretiva } = opts;
+  const { servico, software, pecas, preventiva, corretiva } = opts;
 
   const itens = [];
-  if (pecas) itens.push("substituição de peças e acessórios");
+  if (!servico && pecas) itens.push("substituição de peças e acessórios");
   itens.push("limpeza");
-  itens.push(labelAtualizacao(software));
+  if (!servico) itens.push(labelAtualizacao(software));
   itens.push("Suporte Técnico");
   if (preventiva) itens.push("Manutenção Preventiva");
   if (corretiva) itens.push("Manutenção Corretiva");
   itens.push("deslocamentos e visitas técnicas de acordo com SLA");
 
-  const naoIncluso = pecas ? "" : "; Não incluso substituição de peças e acessórios";
+  const naoIncluso = !servico && !pecas ? "; Não incluso substituição de peças e acessórios" : "";
 
   return {
     tag: "Resposta 2 · Manutenção Mensal Opcional (OPEX Opcional)",
@@ -152,23 +176,34 @@ function respostaManutencaoOpcional(valorCents, opts) {
 }
 
 function respostaLocacao(meses, valorCents, opts) {
-  const { software, pecas, preventiva, corretiva } = opts;
+  const { servico, equipeDedicada, equipamentos, software, pecas, preventiva, corretiva } = opts;
+  const manutencao = labelManutencao(preventiva, corretiva);
 
-  const itens = ["Garantia Total do Sistema"];
-  if (pecas) itens.push("Substituição de Peças");
-  itens.push(labelAtualizacao(software, true));
-  itens.push("Suporte Técnico");
-  itens.push(labelManutencao(preventiva, corretiva));
+  let bold1, itens, naoIncluso, rodape;
 
-  const naoIncluso = pecas ? "" : "; Não incluso Substituição de Peças";
+  if (servico) {
+    bold1 = `III. Valor Mensal (${meses} Meses) para Prestação de Serviços de ${manutencao} de todos os itens desta proposta${equipeDedicada ? ", com Equipe Dedicada alocada no cliente" : ""},`;
+    itens = ["Suporte Técnico", manutencao];
+    naoIncluso = "";
+    rodape = "* Este Valor deverá ser disponibilizado mensalmente pela Prestação dos Serviços";
+  } else {
+    bold1 = `III. Valor Mensal (${meses} Meses) para Locação ${labelFornecimento(equipamentos, software)} e para ${manutencao} de todos os itens desta proposta,`;
+    itens = ["Garantia Total do Sistema"];
+    if (pecas) itens.push("Substituição de Peças");
+    itens.push(labelAtualizacao(software, true));
+    itens.push("Suporte Técnico");
+    itens.push(manutencao);
+    naoIncluso = pecas ? "" : "; Não incluso Substituição de Peças";
+    rodape = `* Este Valor deverá ser disponibilizado mensalmente pela Locação ${labelFornecimento(equipamentos, software)}`;
+  }
 
   return {
     tag: `Resposta · Locação ${meses} Meses (OPEX)`,
     titulo: "Opex:",
-    bold1: `III. Valor Mensal (${meses} Meses) para Locação dos Novos Equipamentos${software ? ", Licenças" : ""} e para ${labelManutencao(preventiva, corretiva)} de todos os itens desta proposta,`,
+    bold1,
     meio: ` (Inclui ${itens.join(", ")}${naoIncluso}): `,
     valorCents,
-    rodape: "* Este Valor deverá ser disponibilizado mensalmente pela Locação dos Equipamentos",
+    rodape,
   };
 }
 
@@ -334,22 +369,22 @@ installBtn.addEventListener("click", async () => {
 });
 
 // ---------- Checkboxes de escopo ----------
-function setupManutencaoExclusiva(chkPreventiva, chkCorretiva, warning) {
+function setupParExclusivo(chkA, chkB, warning) {
   function showWarning() {
     warning.hidden = false;
     setTimeout(() => { warning.hidden = true; }, 3000);
   }
 
-  chkPreventiva.addEventListener("change", () => {
-    if (!chkPreventiva.checked && !chkCorretiva.checked) {
-      chkPreventiva.checked = true;
+  chkA.addEventListener("change", () => {
+    if (!chkA.checked && !chkB.checked) {
+      chkA.checked = true;
       showWarning();
     }
   });
 
-  chkCorretiva.addEventListener("change", () => {
-    if (!chkCorretiva.checked && !chkPreventiva.checked) {
-      chkCorretiva.checked = true;
+  chkB.addEventListener("change", () => {
+    if (!chkB.checked && !chkA.checked) {
+      chkB.checked = true;
       showWarning();
     }
   });
@@ -362,12 +397,25 @@ document.addEventListener("DOMContentLoaded", () => {
   attachCurrencyMask(custoInput);
   attachCurrencyMask(vendaInput);
 
+  const chkEquipamentos = document.getElementById("chkEquipamentos");
   const chkSoftware = document.getElementById("chkSoftware");
   const chkPecas = document.getElementById("chkPecas");
   const chkPreventiva = document.getElementById("chkPreventiva");
   const chkCorretiva = document.getElementById("chkCorretiva");
+  const chkServico = document.getElementById("chkServico");
+  const chkEquipeDedicada = document.getElementById("chkEquipeDedicada");
+  const materialCheckboxes = document.getElementById("materialCheckboxes");
+  const equipeCheckboxes = document.getElementById("equipeCheckboxes");
   const checkboxWarning = document.getElementById("checkboxWarning");
-  setupManutencaoExclusiva(chkPreventiva, chkCorretiva, checkboxWarning);
+
+  setupParExclusivo(chkPreventiva, chkCorretiva, checkboxWarning);
+  setupParExclusivo(chkEquipamentos, chkSoftware, checkboxWarning);
+
+  chkServico.addEventListener("change", () => {
+    const modoServico = chkServico.checked;
+    materialCheckboxes.hidden = modoServico;
+    equipeCheckboxes.hidden = !modoServico;
+  });
 
   document.getElementById("gerarBtn").addEventListener("click", () => {
     const custoCents = getCents(custoInput);
@@ -379,6 +427,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const opts = {
+      servico: chkServico.checked,
+      equipeDedicada: chkEquipeDedicada.checked,
+      equipamentos: chkEquipamentos.checked,
       software: chkSoftware.checked,
       pecas: chkPecas.checked,
       preventiva: chkPreventiva.checked,

@@ -120,6 +120,13 @@
     flex-direction: column;
     gap: 10px;
   }
+  .checkbox-list[hidden] { display: none; }
+  .checkbox-list-spaced { margin-top: 12px; }
+  .checkbox-list-divider {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--card-border);
+  }
   .checkbox-item {
     display: flex;
     align-items: center;
@@ -209,13 +216,27 @@
     </div>
     <div class="field checkbox-group">
       <label class="group-label">O que está incluso nesta proposta?</label>
-      <div class="checkbox-list">
+
+      <div class="checkbox-list" id="materialCheckboxes">
+        <label class="checkbox-item"><input type="checkbox" id="chkEquipamentos" checked> Equipamentos</label>
         <label class="checkbox-item"><input type="checkbox" id="chkSoftware" checked> Software / Licenças</label>
         <label class="checkbox-item"><input type="checkbox" id="chkPecas" checked> Substituição de Peças e Acessórios</label>
+      </div>
+
+      <div class="checkbox-list" id="equipeCheckboxes" hidden>
+        <label class="checkbox-item"><input type="checkbox" id="chkEquipeDedicada"> Equipe Dedicada alocada no cliente</label>
+      </div>
+
+      <div class="checkbox-list checkbox-list-spaced">
         <label class="checkbox-item"><input type="checkbox" id="chkPreventiva" checked> Manutenção Preventiva</label>
         <label class="checkbox-item"><input type="checkbox" id="chkCorretiva" checked> Manutenção Corretiva</label>
       </div>
-      <div class="checkbox-warning" id="checkboxWarning" hidden>É preciso manter ao menos um tipo de manutenção marcado (Preventiva ou Corretiva).</div>
+
+      <div class="checkbox-list checkbox-list-divider">
+        <label class="checkbox-item"><input type="checkbox" id="chkServico"> Apenas Serviço (sem material/licença)</label>
+      </div>
+
+      <div class="checkbox-warning" id="checkboxWarning" hidden>É preciso manter ao menos uma opção marcada nesse grupo.</div>
     </div>
 
     <button class="btn btn-full" id="gerarBtn">Gerar Respostas</button>
