@@ -93,40 +93,80 @@ function valorFormatado(cents) {
   return `${centsToBRL(cents)} (${valorPorExtenso(cents)})`;
 }
 
+// ---------- Textos dinâmicos conforme checkboxes ----------
+function labelManutencao(preventiva, corretiva) {
+  if (preventiva && corretiva) return "Manutenção Preventiva e Corretiva";
+  if (preventiva) return "Manutenção Preventiva";
+  return "Manutenção Corretiva";
+}
+
+function labelAtualizacao(software, capitalizado) {
+  const prefixo = capitalizado ? "Atualizações" : "atualizações";
+  return software ? `${prefixo} de Hardware e Software` : `${prefixo} de Hardware`;
+}
+
 // ---------- Cálculo das respostas ----------
-function calcularRespostas(custoCents, vendaCents) {
+function calcularRespostas(custoCents, vendaCents, opts) {
+  const { software, pecas, preventiva, corretiva } = opts;
   const round = (n) => Math.round(n);
 
   return [
     {
       tag: "Resposta 1 · Preço de Venda (CAPEX)",
       titulo: "Capex:",
-      bold1: "I. Valor para a Aquisição de Todos os Equipamentos e Softwares Licenciados para o sistema acima",
+      bold1: `I. Valor para a Aquisição de Todos os Equipamentos${software ? " e Softwares Licenciados" : ""} para o sistema acima`,
       meio: " (inclui garantia balcão de 12 meses dos equipamentos instalados em caso de defeitos de fábrica): ",
       valorCents: vendaCents,
       rodape: "*Conforme condições comerciais",
     },
-    {
-      tag: "Resposta 2 · Manutenção Mensal Opcional (OPEX Opcional)",
-      titulo: "Opex Opcional:",
-      bold1: "II. OPCIONAL » Valor Mensal para Manutenção Preventiva e Corretiva,",
-      meio: " (Inclui limpeza, atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva, Manutenção Corretiva, deslocamentos e visitas técnicas de acordo com SLA; Não incluso substituição de peças e acessórios): ",
-      valorCents: round(vendaCents * 0.02 * 1.111),
-      rodape: "*Este Valor deverá ser disponibilizado mensalmente pela Manutenção dos Equipamentos",
-    },
-    respostaLocacao(24, round(custoCents * 0.111111111)),
-    respostaLocacao(36, round(custoCents * 0.092165899)),
-    respostaLocacao(48, round(custoCents * 0.078740157)),
-    respostaLocacao(60, round(custoCents * 0.071684588)),
+    respostaManutencaoOpcional(round(vendaCents * 0.02 * 1.111), opts),
+    respostaLocacao(24, round(custoCents * 0.111111111), opts),
+    respostaLocacao(36, round(custoCents * 0.092165899), opts),
+    respostaLocacao(48, round(custoCents * 0.078740157), opts),
+    respostaLocacao(60, round(custoCents * 0.071684588), opts),
   ];
 }
 
-function respostaLocacao(meses, valorCents) {
+function respostaManutencaoOpcional(valorCents, opts) {
+  const { software, pecas, preventiva, corretiva } = opts;
+
+  const itens = [];
+  if (pecas) itens.push("substituição de peças e acessórios");
+  itens.push("limpeza");
+  itens.push(labelAtualizacao(software));
+  itens.push("Suporte Técnico");
+  if (preventiva) itens.push("Manutenção Preventiva");
+  if (corretiva) itens.push("Manutenção Corretiva");
+  itens.push("deslocamentos e visitas técnicas de acordo com SLA");
+
+  const naoIncluso = pecas ? "" : "; Não incluso substituição de peças e acessórios";
+
+  return {
+    tag: "Resposta 2 · Manutenção Mensal Opcional (OPEX Opcional)",
+    titulo: "Opex Opcional:",
+    bold1: `II. OPCIONAL » Valor Mensal para ${labelManutencao(preventiva, corretiva)},`,
+    meio: ` (Inclui ${itens.join(", ")}${naoIncluso}): `,
+    valorCents,
+    rodape: "*Este Valor deverá ser disponibilizado mensalmente pela Manutenção dos Equipamentos",
+  };
+}
+
+function respostaLocacao(meses, valorCents, opts) {
+  const { software, pecas, preventiva, corretiva } = opts;
+
+  const itens = ["Garantia Total do Sistema"];
+  if (pecas) itens.push("Substituição de Peças");
+  itens.push(labelAtualizacao(software, true));
+  itens.push("Suporte Técnico");
+  itens.push(labelManutencao(preventiva, corretiva));
+
+  const naoIncluso = pecas ? "" : "; Não incluso Substituição de Peças";
+
   return {
     tag: `Resposta · Locação ${meses} Meses (OPEX)`,
     titulo: "Opex:",
-    bold1: `III. Valor Mensal (${meses} Meses) para Locação dos Novos Equipamentos, Licenças e para Manutenção Preventiva e Corretiva de todos os itens desta proposta,`,
-    meio: " (Inclui Garantia Total do Sistema, Substituição de Peças, Atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva e Corretiva): ",
+    bold1: `III. Valor Mensal (${meses} Meses) para Locação dos Novos Equipamentos${software ? ", Licenças" : ""} e para ${labelManutencao(preventiva, corretiva)} de todos os itens desta proposta,`,
+    meio: ` (Inclui ${itens.join(", ")}${naoIncluso}): `,
     valorCents,
     rodape: "* Este Valor deverá ser disponibilizado mensalmente pela Locação dos Equipamentos",
   };
@@ -293,12 +333,41 @@ installBtn.addEventListener("click", async () => {
   }
 });
 
+// ---------- Checkboxes de escopo ----------
+function setupManutencaoExclusiva(chkPreventiva, chkCorretiva, warning) {
+  function showWarning() {
+    warning.hidden = false;
+    setTimeout(() => { warning.hidden = true; }, 3000);
+  }
+
+  chkPreventiva.addEventListener("change", () => {
+    if (!chkPreventiva.checked && !chkCorretiva.checked) {
+      chkPreventiva.checked = true;
+      showWarning();
+    }
+  });
+
+  chkCorretiva.addEventListener("change", () => {
+    if (!chkCorretiva.checked && !chkPreventiva.checked) {
+      chkCorretiva.checked = true;
+      showWarning();
+    }
+  });
+}
+
 // ---------- Inicialização ----------
 document.addEventListener("DOMContentLoaded", () => {
   const custoInput = document.getElementById("custo");
   const vendaInput = document.getElementById("venda");
   attachCurrencyMask(custoInput);
   attachCurrencyMask(vendaInput);
+
+  const chkSoftware = document.getElementById("chkSoftware");
+  const chkPecas = document.getElementById("chkPecas");
+  const chkPreventiva = document.getElementById("chkPreventiva");
+  const chkCorretiva = document.getElementById("chkCorretiva");
+  const checkboxWarning = document.getElementById("checkboxWarning");
+  setupManutencaoExclusiva(chkPreventiva, chkCorretiva, checkboxWarning);
 
   document.getElementById("gerarBtn").addEventListener("click", () => {
     const custoCents = getCents(custoInput);
@@ -309,7 +378,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const respostas = calcularRespostas(custoCents, vendaCents);
+    const opts = {
+      software: chkSoftware.checked,
+      pecas: chkPecas.checked,
+      preventiva: chkPreventiva.checked,
+      corretiva: chkCorretiva.checked,
+    };
+
+    const respostas = calcularRespostas(custoCents, vendaCents, opts);
     renderResultados(respostas);
     document.getElementById("results").scrollIntoView({ behavior: "smooth" });
   });

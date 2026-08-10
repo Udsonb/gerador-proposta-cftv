@@ -111,6 +111,40 @@
   .btn:hover { background: var(--accent-dark); }
   .btn:active { transform: scale(0.97); }
   .btn-full { width: 100%; justify-content: center; margin-top: 4px; }
+
+  .checkbox-group label.group-label {
+    margin-bottom: 10px;
+  }
+  .checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    font-size: 0.92rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .checkbox-warning {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: #b45309;
+    background: #fef3c7;
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  .checkbox-warning[hidden] { display: none; }
   .btn-copy {
     background: var(--accent-light);
     color: var(--accent-dark);
@@ -173,6 +207,17 @@
       <div class="hint">Dica: valor total da coluna L da proposta</div>
       <input type="text" id="venda" inputmode="decimal" placeholder="R$ 0,00">
     </div>
+    <div class="field checkbox-group">
+      <label class="group-label">O que está incluso nesta proposta?</label>
+      <div class="checkbox-list">
+        <label class="checkbox-item"><input type="checkbox" id="chkSoftware" checked> Software / Licenças</label>
+        <label class="checkbox-item"><input type="checkbox" id="chkPecas" checked> Substituição de Peças e Acessórios</label>
+        <label class="checkbox-item"><input type="checkbox" id="chkPreventiva" checked> Manutenção Preventiva</label>
+        <label class="checkbox-item"><input type="checkbox" id="chkCorretiva" checked> Manutenção Corretiva</label>
+      </div>
+      <div class="checkbox-warning" id="checkboxWarning" hidden>É preciso manter ao menos um tipo de manutenção marcado (Preventiva ou Corretiva).</div>
+    </div>
+
     <button class="btn btn-full" id="gerarBtn">Gerar Respostas</button>
   </div>
 
